@@ -1,3 +1,4 @@
+import 'package:era92_elevate/componets/tiles/assignment_tile.dart';
 import 'package:era92_elevate/models/assessment.dart';
 import 'package:era92_elevate/screens/app_screens/Students_screen/assignment_detail_screen.dart';
 import 'package:era92_elevate/theme/app_theme.dart';
@@ -12,7 +13,7 @@ final _assignments = [
     dueDate: 'Jun 20, 2025',
     deadline: DateTime(2025, 6, 20, 23, 59),
     instructions:
-        'Build a responsive landing page using HTML and CSS. Your page must include a navigation bar, hero section, features section, and a footer. Upload your project to GitHub and submit the repository link.',
+        'Build a responsive landing page using HTML and CSS. Include a navbar, hero section, features section, and footer. Upload to GitHub and submit the repo link.',
     status: AssignmentStatus.graded,
     score: 88,
     totalMarks: 100,
@@ -25,7 +26,7 @@ final _assignments = [
     dueDate: 'Jun 22, 2025',
     deadline: DateTime(2025, 6, 22, 17, 0),
     instructions:
-        'Prepare a 5-minute speech on a leadership figure of your choice. Record yourself delivering the speech and upload the video to Google Drive. Submit the shareable link below.',
+        'Prepare a 5-minute speech on a leadership figure of your choice. Record and upload the video to Google Drive, then submit the link.',
     status: AssignmentStatus.graded,
     score: 74,
     totalMarks: 100,
@@ -38,7 +39,7 @@ final _assignments = [
     dueDate: 'Jun 25, 2025',
     deadline: DateTime(2025, 6, 25, 23, 59),
     instructions:
-        'Complete the JavaScript functions quiz on the learning portal. Once done, take a screenshot of your result page, upload it to Google Drive, and submit the link here.',
+        'Complete the JavaScript functions quiz on the learning portal. Screenshot your result and submit the Google Drive link.',
     status: AssignmentStatus.submitted,
     icon: Icons.laptop_mac_rounded,
     submittedLink: 'https://drive.google.com/file/example',
@@ -50,7 +51,7 @@ final _assignments = [
     dueDate: 'Jun 28, 2025',
     deadline: DateTime(2025, 6, 28, 17, 0),
     instructions:
-        'Write a 500-word group reflection essay on this term\'s fellowship activities. Discuss what you learned, your contributions, and areas for growth. Submit a Google Docs link with comment access enabled.',
+        'Write a 500-word group reflection on this term\'s fellowship activities. Submit a Google Docs link with comment access.',
     status: AssignmentStatus.pending,
     icon: Icons.people_rounded,
   ),
@@ -60,9 +61,79 @@ final _assignments = [
     dueDate: 'Jul 2, 2025',
     deadline: DateTime(2025, 7, 2, 17, 0),
     instructions:
-        'Prepare arguments for both sides of the topic: "Social media does more harm than good." Write your points in a document, record a 3-minute practice debate, and submit the Google Drive link to your video.',
+        'Prepare both sides of "Social media does more harm than good." Record a 3-min practice debate and submit the Drive link.',
     status: AssignmentStatus.pending,
     icon: Icons.mic_rounded,
+  ),
+];
+
+// ── Sample resources ───────────────────────────────────────────────────────────
+
+class _Resource {
+  const _Resource({
+    required this.title,
+    required this.subject,
+    required this.type,
+    required this.meta,
+    required this.icon,
+    required this.iconBg,
+  });
+  final String title;
+  final String subject;
+  final String type;
+  final String meta;
+  final IconData icon;
+  final Color iconBg;
+}
+
+const _resources = [
+  _Resource(
+    title: 'HTML & CSS Fundamentals',
+    subject: 'Website Development',
+    type: 'PDF',
+    meta: '2.4 MB · 24 pages',
+    icon: Icons.picture_as_pdf_rounded,
+    iconBg: Color(0xFFFFEEEE),
+  ),
+  _Resource(
+    title: 'Intro to JavaScript — Video',
+    subject: 'Website Development',
+    type: 'Video',
+    meta: '45 min · HD',
+    icon: Icons.play_circle_outline_rounded,
+    iconBg: Color(0xFFFFF3E0),
+  ),
+  _Resource(
+    title: 'Leadership Essay Examples',
+    subject: 'Public Speaking',
+    type: 'PDF',
+    meta: '1.1 MB · 8 pages',
+    icon: Icons.picture_as_pdf_rounded,
+    iconBg: Color(0xFFFFEEEE),
+  ),
+  _Resource(
+    title: 'Speech Techniques Guide',
+    subject: 'Public Speaking',
+    type: 'Link',
+    meta: 'External resource',
+    icon: Icons.open_in_new_rounded,
+    iconBg: Color(0xFFE8F4FD),
+  ),
+  _Resource(
+    title: 'Fellowship Handbook 2025',
+    subject: 'Fellowship',
+    type: 'PDF',
+    meta: '3.7 MB · 52 pages',
+    icon: Icons.picture_as_pdf_rounded,
+    iconBg: Color(0xFFFFEEEE),
+  ),
+  _Resource(
+    title: 'CSS Grid & Flexbox Cheatsheet',
+    subject: 'Website Development',
+    type: 'PDF',
+    meta: '0.8 MB · 4 pages',
+    icon: Icons.picture_as_pdf_rounded,
+    iconBg: Color(0xFFFFEEEE),
   ),
 ];
 
@@ -82,7 +153,7 @@ class _StudentsAssessmentState extends State<StudentsAssessment>
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 3, vsync: this);
+    _tab = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -95,30 +166,26 @@ class _StudentsAssessmentState extends State<StudentsAssessment>
       _assignments.where((a) => a.status == AssignmentStatus.graded).toList();
   List<Assignment> get _pending =>
       _assignments.where((a) => a.status == AssignmentStatus.pending).toList();
-  List<Assignment> get _submitted => _assignments
-      .where((a) => a.status == AssignmentStatus.submitted)
-      .toList();
+  List<Assignment> get _submitted =>
+      _assignments.where((a) => a.status == AssignmentStatus.submitted).toList();
 
   double get _averageScore {
     if (_graded.isEmpty) return 0;
-    final total = _graded.fold<int>(0, (sum, a) => sum + (a.score ?? 0));
-    return total / _graded.length;
+    return _graded.fold<int>(0, (s, a) => s + (a.score ?? 0)) /
+        _graded.length;
   }
 
-  void _onSubmitted(Assignment assignment, String link) {
+  void _onSubmitted(Assignment a, String link) {
     setState(() {
-      assignment.status = AssignmentStatus.submitted;
-      assignment.submittedLink = link;
-      assignment.submittedAt = DateTime.now(); // ← record submission time
+      a.status = AssignmentStatus.submitted;
+      a.submittedLink = link;
+      a.submittedAt = DateTime.now();
     });
-    _tab.animateTo(1);
   }
 
-  void _openDetail(Assignment assignment) {
+  void _openDetail(Assignment a) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => AssignmentDetailScreen(assignment: assignment),
-      ),
+      MaterialPageRoute(builder: (_) => AssignmentDetailScreen(assignment: a)),
     );
   }
 
@@ -130,62 +197,63 @@ class _StudentsAssessmentState extends State<StudentsAssessment>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── Header ──────────────────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: Text(
-                'Assessments',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                'Track your marks and assignments',
-                style: Theme.of(context).textTheme.bodyMedium,
+              padding: const EdgeInsets.fromLTRB(20, 22, 20, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Assessments',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Track your marks and submissions',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),
+
+            // ── Stats row ────────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _SummaryCard(
+              child: _StatsRow(
                 average: _averageScore,
-                graded: _graded.length,
                 pending: _pending.length,
                 submitted: _submitted.length,
+                graded: _graded.length,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+
+            // ── Tab bar ───────────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _AssessmentTabBar(controller: _tab),
+              child: _SegmentedTabBar(controller: _tab),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
+
+            // ── Tab views ────────────────────────────────────────────────────
             Expanded(
               child: TabBarView(
                 controller: _tab,
                 children: [
-                  _AssignmentList(
-                    items: _pending,
-                    emptyMessage: 'No pending assignments 🎉',
-                    emptySubtitle: "You're all caught up.",
+                  _AssignmentsTab(
+                    assignments: _assignments,
                     onSubmitted: _onSubmitted,
                     onTap: _openDetail,
                   ),
-                  _AssignmentList(
-                    items: _submitted,
-                    emptyMessage: 'Nothing submitted yet',
-                    emptySubtitle: 'Submitted work will appear here.',
-                    onSubmitted: _onSubmitted,
-                    onTap: _openDetail,
-                  ),
-                  _AssignmentList(
-                    items: _graded,
-                    emptyMessage: 'No grades yet',
-                    emptySubtitle: 'Your marks will appear here once graded.',
-                    onSubmitted: _onSubmitted,
-                    onTap: _openDetail,
-                  ),
+                  const _ResourcesTab(),
                 ],
               ),
             ),
@@ -196,38 +264,33 @@ class _StudentsAssessmentState extends State<StudentsAssessment>
   }
 }
 
-// ── Summary card ───────────────────────────────────────────────────────────────
+// ── Stats row ──────────────────────────────────────────────────────────────────
 
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
+class _StatsRow extends StatelessWidget {
+  const _StatsRow({
     required this.average,
-    required this.graded,
     required this.pending,
     required this.submitted,
+    required this.graded,
   });
 
   final double average;
-  final int graded;
   final int pending;
   final int submitted;
+  final int graded;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: AppGradients.primaryDiagonal,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
+          // Average score
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,51 +298,54 @@ class _SummaryCard extends StatelessWidget {
                 const Text(
                   'Average Score',
                   style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 12,
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   '${average.toStringAsFixed(1)}%',
                   style: const TextStyle(
-                    color: AppColors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
                     height: 1,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$graded assignment${graded == 1 ? '' : 's'} graded',
-                  style: TextStyle(
-                    color: AppColors.white.withValues(alpha: 0.75),
-                    fontSize: 12,
+                  '$graded graded',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textLight,
                   ),
                 ),
               ],
             ),
           ),
+          Container(width: 1, height: 52, color: AppColors.divider),
+          const SizedBox(width: 16),
+          // Counts
           Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _StatPill(
-                label: 'Pending',
+              _StatBadge(
                 count: pending,
-                color: const Color(0xFFFFD166),
+                label: 'Pending',
+                color: AppColors.warning,
               ),
-              const SizedBox(height: 8),
-              _StatPill(
-                label: 'Submitted',
+              const SizedBox(height: 6),
+              _StatBadge(
                 count: submitted,
-                color: const Color(0xFF90E0EF),
+                label: 'Submitted',
+                color: AppColors.info,
               ),
-              const SizedBox(height: 8),
-              _StatPill(
-                label: 'Graded',
+              const SizedBox(height: 6),
+              _StatBadge(
                 count: graded,
-                color: const Color(0xFF06D6A0),
+                label: 'Graded',
+                color: AppColors.success,
               ),
             ],
           ),
@@ -289,852 +355,357 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _StatPill extends StatelessWidget {
-  const _StatPill({
-    required this.label,
+class _StatBadge extends StatelessWidget {
+  const _StatBadge({
     required this.count,
+    required this.label,
     required this.color,
   });
-  final String label;
   final int count;
+  final String label;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-      decoration: BoxDecoration(
-        color: AppColors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          '$count $label',
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textSecondary,
           ),
-          const SizedBox(width: 6),
-          Text(
-            '$count $label',
-            style: const TextStyle(
-              color: AppColors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
-// ── Tab bar ────────────────────────────────────────────────────────────────────
+// ── Segmented tab bar ──────────────────────────────────────────────────────────
 
-class _AssessmentTabBar extends StatelessWidget {
-  const _AssessmentTabBar({required this.controller});
+class _SegmentedTabBar extends StatelessWidget {
+  const _SegmentedTabBar({required this.controller});
   final TabController controller;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 42,
+      height: 40,
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
       ),
       child: TabBar(
         controller: controller,
         indicator: BoxDecoration(
-          gradient: AppGradients.primary,
-          borderRadius: BorderRadius.circular(10),
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(7),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
         labelColor: AppColors.white,
-        unselectedLabelColor: AppColors.textLight,
-        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        unselectedLabelColor: AppColors.textSecondary,
+        labelStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
         unselectedLabelStyle: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
-        padding: const EdgeInsets.all(4),
         tabs: const [
-          Tab(text: 'Pending'),
-          Tab(text: 'Submitted'),
-          Tab(text: 'Graded'),
+          Tab(text: 'Assignments'),
+          Tab(text: 'Resources'),
         ],
       ),
     );
   }
 }
 
-// ── Assignment list ────────────────────────────────────────────────────────────
+// ── Assignments tab ────────────────────────────────────────────────────────────
 
-class _AssignmentList extends StatelessWidget {
-  const _AssignmentList({
-    required this.items,
-    required this.emptyMessage,
-    required this.emptySubtitle,
+class _AssignmentsTab extends StatefulWidget {
+  const _AssignmentsTab({
+    required this.assignments,
     required this.onSubmitted,
     required this.onTap,
   });
 
-  final List<Assignment> items;
-  final String emptyMessage;
-  final String emptySubtitle;
+  final List<Assignment> assignments;
   final void Function(Assignment, String) onSubmitted;
   final void Function(Assignment) onTap;
 
   @override
-  Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.check_circle_outline_rounded,
-              size: 56,
-              color: AppColors.textLight,
-            ),
-            const SizedBox(height: 12),
-            Text(emptyMessage, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 4),
-            Text(emptySubtitle, style: Theme.of(context).textTheme.bodyMedium),
-          ],
-        ),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-      itemCount: items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 14),
-      itemBuilder: (_, i) => _AssignmentCard(
-        item: items[i],
-        onSubmitted: onSubmitted,
-        onTap: onTap,
-      ),
-    );
-  }
+  State<_AssignmentsTab> createState() => _AssignmentsTabState();
 }
 
-// ── Assignment card ────────────────────────────────────────────────────────────
+class _AssignmentsTabState extends State<_AssignmentsTab> {
+  AssignmentStatus? _filter;
 
-class _AssignmentCard extends StatelessWidget {
-  const _AssignmentCard({
-    required this.item,
-    required this.onSubmitted,
-    required this.onTap,
-  });
-
-  final Assignment item;
-  final void Function(Assignment, String) onSubmitted;
-  final void Function(Assignment) onTap;
-
-  Color get _statusColor {
-    switch (item.status) {
-      case AssignmentStatus.pending:
-        return const Color(0xFFFFD166);
-      case AssignmentStatus.submitted:
-        return const Color(0xFF90E0EF);
-      case AssignmentStatus.graded:
-        return const Color(0xFF06D6A0);
-    }
-  }
-
-  String get _statusLabel {
-    switch (item.status) {
-      case AssignmentStatus.pending:
-        return 'Pending';
-      case AssignmentStatus.submitted:
-        return 'Submitted';
-      case AssignmentStatus.graded:
-        return 'Graded';
-    }
-  }
-
-  int get _daysLeft => item.deadline.difference(DateTime.now()).inDays;
-
-  String get _deadlineLabel {
-    final d = _daysLeft;
-    if (d < 0) return 'Overdue by ${d.abs()} day${d.abs() == 1 ? '' : 's'}';
-    if (d == 0) return 'Due today';
-    if (d == 1) return '1 day left';
-    return '$d days left';
-  }
-
-  Color get _deadlineColor {
-    final d = _daysLeft;
-    if (d < 0) return const Color(0xFFEF476F);
-    if (d <= 1) return const Color(0xFFFFD166);
-    return const Color(0xFF06D6A0);
-  }
-
-  String _formatDate(DateTime dt) {
-    final months = [
-      '',
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
-    final min = dt.minute.toString().padLeft(2, '0');
-    final period = dt.hour < 12 ? 'AM' : 'PM';
-    return '${months[dt.month]} ${dt.day}, ${dt.year}  ·  $hour:$min $period';
-  }
-
-  void _showSubmitDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _SubmitBottomSheet(
-        assignment: item,
-        deadlineLabel: _deadlineLabel,
-        deadlineColor: _deadlineColor,
-        onConfirm: (link) => onSubmitted(item, link),
-      ),
-    );
+  List<Assignment> get _filtered {
+    if (_filter == null) return widget.assignments;
+    return widget.assignments.where((a) => a.status == _filter).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onTap(item),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Filter chips ──────────────────────────────────────────────────
+        SizedBox(
+          height: 36,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            children: [
+              _FilterChip(
+                label: 'All',
+                selected: _filter == null,
+                onTap: () => setState(() => _filter = null),
+              ),
+              const SizedBox(width: 8),
+              _FilterChip(
+                label: 'Pending',
+                selected: _filter == AssignmentStatus.pending,
+                color: AppColors.warning,
+                onTap: () => setState(
+                  () => _filter = _filter == AssignmentStatus.pending
+                      ? null
+                      : AssignmentStatus.pending,
+                ),
+              ),
+              const SizedBox(width: 8),
+              _FilterChip(
+                label: 'Submitted',
+                selected: _filter == AssignmentStatus.submitted,
+                color: AppColors.info,
+                onTap: () => setState(
+                  () => _filter = _filter == AssignmentStatus.submitted
+                      ? null
+                      : AssignmentStatus.submitted,
+                ),
+              ),
+              const SizedBox(width: 8),
+              _FilterChip(
+                label: 'Graded',
+                selected: _filter == AssignmentStatus.graded,
+                color: AppColors.success,
+                onTap: () => setState(
+                  () => _filter = _filter == AssignmentStatus.graded
+                      ? null
+                      : AssignmentStatus.graded,
+                ),
+              ),
+            ],
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Top row ──────────────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(item.icon, color: AppColors.primary, size: 22),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          item.subject,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textLight,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+        const SizedBox(height: 12),
+
+        // ── List ──────────────────────────────────────────────────────────
+        Expanded(
+          child: _filtered.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (item.status == AssignmentStatus.graded &&
-                          item.score != null) ...[
-                        Text(
-                          '${item.score}',
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        Text(
-                          '/ ${item.totalMarks}',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textLight,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                      ],
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
+                        width: 64,
+                        height: 64,
                         decoration: BoxDecoration(
-                          color: _statusColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(20),
+                          color: AppColors.surfaceWarm,
+                          shape: BoxShape.circle,
                         ),
-                        child: Text(
-                          _statusLabel,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: _statusColor.withValues(alpha: 0.9),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // ── Deadline row ──────────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.calendar_today_rounded,
-                    size: 11,
-                    color: AppColors.textLight,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Deadline: ${item.dueDate}',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textLight,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  if (item.status == AssignmentStatus.pending)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _deadlineColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.access_time_rounded,
-                            size: 10,
-                            color: _deadlineColor,
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            _deadlineLabel,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: _deadlineColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            // ── Submitted on (graded only) ────────────────────────────────
-            if (item.status == AssignmentStatus.graded &&
-                item.submittedAt != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.check_circle_rounded,
-                      size: 11,
-                      color: Color(0xFF06D6A0),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Submitted: ${_formatDate(item.submittedAt!)}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF06D6A0),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            // ── Divider ───────────────────────────────────────────────────
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Divider(color: AppColors.divider, height: 1),
-            ),
-
-            // ── Instructions ──────────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.info_outline_rounded,
-                    size: 13,
-                    color: AppColors.primary,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    'Instructions',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 5, 16, 0),
-              child: Text(
-                item.instructions,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textLight,
-                  height: 1.5,
-                ),
-              ),
-            ),
-
-            // ── Submitted link ────────────────────────────────────────────
-            if (item.status == AssignmentStatus.submitted &&
-                item.submittedLink != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF90E0EF).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: const Color(0xFF90E0EF).withValues(alpha: 0.4),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.link_rounded,
-                        size: 14,
-                        color: Color(0xFF0096B4),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          item.submittedLink!,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF0096B4),
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-            // ── Tap hint + submit button ──────────────────────────────────
-            if (item.status == AssignmentStatus.pending)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-                child: Row(
-                  children: [
-                    // Tap to view details hint
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.touch_app_rounded,
-                          size: 13,
+                        child: const Icon(
+                          Icons.inbox_rounded,
+                          size: 32,
                           color: AppColors.textLight,
                         ),
-                        const SizedBox(width: 4),
-                        const Text(
-                          'Tap card for details',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textLight,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    // Submit button
-                    GestureDetector(
-                      onTap: () => _showSubmitDialog(context),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: AppGradients.primary,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.upload_rounded,
-                              size: 14,
-                              color: AppColors.white,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              'Submit',
-                              style: TextStyle(
-                                color: AppColors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Nothing here',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.touch_app_rounded,
-                      size: 13,
-                      color: AppColors.textLight,
-                    ),
-                    const SizedBox(width: 4),
-                    const Text(
-                      'Tap for full details',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textLight,
+                      const SizedBox(height: 4),
+                      const Text(
+                        'No assignments match this filter.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                  itemCount: _filtered.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (_, i) => AssignmentTile(
+                    item: _filtered[i],
+                    onSubmitted: widget.onSubmitted,
+                    onTap: widget.onTap,
+                  ),
                 ),
-              ),
-          ],
         ),
-      ),
+      ],
     );
   }
 }
 
-// ── Submit bottom sheet ────────────────────────────────────────────────────────
-
-class _SubmitBottomSheet extends StatefulWidget {
-  const _SubmitBottomSheet({
-    required this.assignment,
-    required this.deadlineLabel,
-    required this.deadlineColor,
-    required this.onConfirm,
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.color,
   });
 
-  final Assignment assignment;
-  final String deadlineLabel;
-  final Color deadlineColor;
-  final void Function(String link) onConfirm;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final Color? color;
 
   @override
-  State<_SubmitBottomSheet> createState() => _SubmitBottomSheetState();
-}
-
-class _SubmitBottomSheetState extends State<_SubmitBottomSheet> {
-  final _linkController = TextEditingController();
-  bool _hasError = false;
-
-  @override
-  void dispose() {
-    _linkController.dispose();
-    super.dispose();
-  }
-
-  bool _isValidUrl(String url) {
-    final uri = Uri.tryParse(url);
-    return uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
-  }
-
-  void _confirm() {
-    final link = _linkController.text.trim();
-    if (!_isValidUrl(link)) {
-      setState(() => _hasError = true);
-      return;
-    }
-    Navigator.pop(context);
-    widget.onConfirm(link);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Row(
-          children: [
-            Icon(Icons.check_circle_rounded, color: AppColors.white, size: 18),
-            SizedBox(width: 8),
-            Text(
-              'Assignment submitted successfully!',
-              style: TextStyle(color: AppColors.white),
-            ),
-          ],
+  Widget build(BuildContext context) {
+    final activeColor = color ?? AppColors.primary;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? activeColor : AppColors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? activeColor : AppColors.border,
+          ),
         ),
-        backgroundColor: const Color(0xFF06D6A0),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: selected ? AppColors.white : AppColors.textSecondary,
+          ),
+        ),
       ),
     );
+  }
+}
+
+// ── Resources tab ──────────────────────────────────────────────────────────────
+
+class _ResourcesTab extends StatelessWidget {
+  const _ResourcesTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+      itemCount: _resources.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (_, i) => _ResourceTile(resource: _resources[i]),
+    );
+  }
+}
+
+class _ResourceTile extends StatelessWidget {
+  const _ResourceTile({required this.resource});
+  final _Resource resource;
+
+  Color get _typeColor {
+    switch (resource.type) {
+      case 'Video':
+        return AppColors.warning;
+      case 'Link':
+        return AppColors.info;
+      default:
+        return const Color(0xFFD62828);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Container(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-      padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.divider,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'Submit Assignment',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            widget.assignment.title,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.textLight,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 16),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: widget.deadlineColor.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: widget.deadlineColor.withValues(alpha: 0.3),
-              ),
+              color: resource.iconBg,
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Row(
+            child: Icon(resource.icon, color: _typeColor, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.access_time_rounded,
-                  size: 16,
-                  color: widget.deadlineColor,
+                Text(
+                  resource.title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Deadline',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: widget.deadlineColor.withValues(alpha: 0.8),
-                      ),
-                    ),
-                    Text(
-                      '${widget.assignment.dueDate}  ·  ${widget.deadlineLabel}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: widget.deadlineColor,
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 2),
+                Text(
+                  resource.subject,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  resource.meta,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textLight,
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'Paste your work link',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: _typeColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: _typeColor.withValues(alpha: 0.18)),
             ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Share a Google Drive, GitHub, or any public link to your work.',
-            style: TextStyle(fontSize: 12, color: AppColors.textLight),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _linkController,
-            keyboardType: TextInputType.url,
-            onChanged: (_) {
-              if (_hasError) setState(() => _hasError = false);
-            },
-            decoration: InputDecoration(
-              hintText: 'https://drive.google.com/...',
-              hintStyle: const TextStyle(
-                color: AppColors.textLight,
-                fontSize: 13,
-              ),
-              prefixIcon: const Icon(
-                Icons.link_rounded,
-                color: AppColors.primary,
-                size: 18,
-              ),
-              filled: true,
-              fillColor: AppColors.background,
-              errorText: _hasError ? 'Please enter a valid URL' : null,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 14,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.divider),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.divider),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.primary,
-                  width: 1.5,
-                ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFEF476F)),
+            child: Text(
+              resource.type,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: _typeColor,
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 48,
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.divider),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textLight,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: SizedBox(
-                  height: 48,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: AppGradients.primary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextButton(
-                      onPressed: _confirm,
-                      style: TextButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.check_rounded,
-                            size: 16,
-                            color: AppColors.white,
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            'Confirm',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
