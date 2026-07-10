@@ -75,7 +75,7 @@ Run `npm run seed:elevate && npm run seed:admin` to create all accounts.
 | `trainer@era92elevate.org` | `elevate2024` | TRAINER | General |
 | `daniel.ochieng@trainer.elevate.org` | `trainer2024` | TRAINER | Film & Photography |
 | `grace.akello@trainer.elevate.org` | `trainer2024` | TRAINER | ALX Course |
-| `patrick.ssali@trainer.elevate.org` | `trainer2024` | TRAINER | Graphic Design (Kosovo) |
+| `patrick.ssali@trainer.elevate.org` | `trainer2024` | TRAINER | Graphic Design (Kosovo) |se
 | `miriam.atim@trainer.elevate.org` | `trainer2024` | TRAINER | Website Development (Kosovo) |
 | `peter.mwanje@trainer.elevate.org` | `trainer2024` | TRAINER | Website Development |
 | `nickolus.onapa@trainer.elevate.org` | `trainer2024` | TRAINER | Graphic Design |

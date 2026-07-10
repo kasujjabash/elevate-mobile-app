@@ -1,8 +1,10 @@
+import 'package:era92_elevate/apis/auth_service.dart';
 import 'package:era92_elevate/componets/text_field.dart';
 import 'package:era92_elevate/screens/app_screens/Students_screen/student_shell.dart';
 import 'package:era92_elevate/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,6 +15,59 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   int _tab = 0;
+
+  // ── NEW: Login form state ─────────────────────────────
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoggingIn = false;
+  String? _loginError;
+
+  
+
+  @override
+
+  void dispose() {
+    _usernameController.dispose(); // NEW
+    _passwordController.dispose(); // NEW
+    super.dispose();
+  }
+
+  // ── CHANGED: now just calls AuthService.login() ──────
+  Future<void> _handleLogin() async {
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      setState(() => _loginError = 'Please enter both username and password');
+      return;
+    }
+
+    setState(() {
+      _isLoggingIn = true;
+      _loginError = null;
+    });
+
+    try {
+      final data = await AuthService.login(
+        username: username,
+        password: password,
+      );
+
+   // TODO: store data['accessToken'] with shared_preferences
+
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const StudentShell()),
+      );
+    } catch (e) {
+      setState(() {
+        _loginError = e.toString().replaceFirst('Exception: ', '');
+      });
+    } finally {
+      if (mounted) setState(() => _isLoggingIn = false);
+    }
+  }   
 
   @override
   Widget build(BuildContext context) {
@@ -173,12 +228,14 @@ class _LoginScreenState extends State<LoginScreen> {
           label: 'Username',
           icon: Icons.person_outline_rounded,
           obscuretext: false,
+          controller: _usernameController,
         ),
         const SizedBox(height: 12),
         MyTextfield(
           label: 'Password',
           icon: Icons.lock_outline_rounded,
           obscuretext: true,
+          controller: _passwordController,
         ),
         const SizedBox(height: 10),
         Row(
@@ -224,12 +281,22 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
         const SizedBox(height: 24),
-        _gradientButton('Login', () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const StudentShell()),
-          );
-        }),
+        if (_loginError != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              _loginError!,
+              style: const TextStyle(
+                color: Color(0xFFEF476F),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        _gradientButton(
+          _isLoggingIn ? 'Logging in...' : 'Login',
+          _isLoggingIn ? () {} : _handleLogin,
+        ),
       ];
 
   // ── Register ──────────────────────────────────────────────────────

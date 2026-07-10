@@ -4,6 +4,7 @@ import 'package:era92_elevate/componets/todays_class_card.dart';
 import 'package:era92_elevate/models/assessment.dart';
 import 'package:era92_elevate/screens/app_screens/Students_screen/assignment_detail_screen.dart';
 import 'package:era92_elevate/screens/app_screens/Students_screen/students_assessment.dart';
+import 'package:era92_elevate/screens/app_screens/Students_screen/students_profile.dart';
 import 'package:era92_elevate/screens/app_screens/Students_screen/workshops_screen.dart';
 import 'package:era92_elevate/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -233,20 +234,27 @@ class StudentsHome extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              gradient: AppGradients.primary,
-              borderRadius: BorderRadius.circular(12),
+          GestureDetector(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const StudentsProfile(),
+              ),
             ),
-            alignment: Alignment.center,
-            child: const Text(
-              'S',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                gradient: AppGradients.primary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: const Text(
+                'S',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),

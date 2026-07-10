@@ -7,11 +7,13 @@ class MyTextfield extends StatefulWidget {
     required this.label,
     required this.icon,
     required this.obscuretext,
+    this.controller,
   });
 
   final String label;
   final IconData? icon;
   final bool obscuretext;
+  final TextEditingController? controller;
 
   @override
   State<MyTextfield> createState() => _MyTextfieldState();
@@ -29,6 +31,7 @@ class _MyTextfieldState extends State<MyTextfield> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: widget.controller,
       obscureText: _obscure,
       style: const TextStyle(
         color: AppColors.textPrimary,

@@ -1,6 +1,6 @@
 import 'package:era92_elevate/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import "package:url_launcher/url_launcher.dart";
 
 // ── Class data model ──────────────────────────────────────────────────────────
 
