@@ -6,7 +6,7 @@ import 'package:era92_elevate/providers/course_provider.dart';
 import 'package:era92_elevate/screens/app_screens/Students_screen/assignment_detail_screen.dart';
 import 'package:era92_elevate/screens/app_screens/Students_screen/students_assessment.dart';
 import 'package:era92_elevate/screens/app_screens/Students_screen/workshops_screen.dart';
-import 'package:era92_elevate/screens/app_screens/Students_screen/course_integration.dart'; 
+import 'package:era92_elevate/screens/app_screens/Students_screen/course_integration.dart';
 import 'package:era92_elevate/screens/auth_screens/welcome_screen.dart';
 import 'package:era92_elevate/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -143,13 +143,13 @@ class StudentsHome extends StatelessWidget {
               const SizedBox(height: 20),
               _buildAnnouncements(),
               const SizedBox(height: 24),
-              
+
               // NEW COURSES SECTION
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _buildNewCoursesSection(context, courses),
               ),
-              
+
               const SizedBox(height: 24),
               _buildTodaysClassesSection(context),
               const SizedBox(height: 24),
@@ -306,7 +306,7 @@ class StudentsHome extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.08),
+                  color: AppColors.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
@@ -576,10 +576,10 @@ class _AssignmentPreviewTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _statusColor.withValues(alpha: 0.08),
+                  color: _statusColor.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: _statusColor.withValues(alpha: 0.20),
+                    color: _statusColor.withOpacity(0.20),
                   ),
                 ),
                 child: Text(

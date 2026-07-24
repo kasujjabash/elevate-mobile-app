@@ -166,13 +166,13 @@ class _StudentsAssessmentState extends State<StudentsAssessment>
       _assignments.where((a) => a.status == AssignmentStatus.graded).toList();
   List<Assignment> get _pending =>
       _assignments.where((a) => a.status == AssignmentStatus.pending).toList();
-  List<Assignment> get _submitted =>
-      _assignments.where((a) => a.status == AssignmentStatus.submitted).toList();
+  List<Assignment> get _submitted => _assignments
+      .where((a) => a.status == AssignmentStatus.submitted)
+      .toList();
 
   double get _averageScore {
     if (_graded.isEmpty) return 0;
-    return _graded.fold<int>(0, (s, a) => s + (a.score ?? 0)) /
-        _graded.length;
+    return _graded.fold<int>(0, (s, a) => s + (a.score ?? 0)) / _graded.length;
   }
 
   void _onSubmitted(Assignment a, String link) {
@@ -414,10 +414,7 @@ class _SegmentedTabBar extends StatelessWidget {
         dividerColor: Colors.transparent,
         labelColor: AppColors.white,
         unselectedLabelColor: AppColors.textSecondary,
-        labelStyle: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w500,
@@ -590,9 +587,7 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? activeColor : AppColors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? activeColor : AppColors.border,
-          ),
+          border: Border.all(color: selected ? activeColor : AppColors.border),
         ),
         child: Text(
           label,
