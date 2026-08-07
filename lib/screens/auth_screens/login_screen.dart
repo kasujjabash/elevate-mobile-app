@@ -52,7 +52,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final user = auth.user!;
     if (user.isStudent) {
       if (!mounted) return;
-      await context.read<CourseProvider>().fetchEnrollments(
+      final courseProvider = context.read<CourseProvider>();
+      courseProvider.clear(); // clear previous student's courses first
+      await courseProvider.fetchEnrollments(
             token: auth.token!,
             contactId: user.contactId,
           );

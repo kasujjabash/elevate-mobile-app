@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:era92_elevate/apis/api_client.dart';
 import 'package:era92_elevate/apis/auth_api.dart';
 import 'package:era92_elevate/models/app_user.dart';
+import 'package:era92_elevate/providers/course_provider.dart';
 import 'package:era92_elevate/services/session_storage.dart';
 
 enum AuthStatus { unknown, authenticating, authenticated, unauthenticated }
@@ -56,7 +57,9 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> logout() async {
+  Future<void> logout({CourseProvider? courseProvider}) async {
+    // Clear courses immediately so next student doesn't see stale data
+    courseProvider?.clear();
     await _sessionStorage.clearSession();
     token = null;
     user = null;

@@ -141,15 +141,8 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
             ),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      widget.accent,
-                      widget.accent.withValues(alpha: 0.75),
-                    ],
-                  ),
+                decoration: const BoxDecoration(
+                  gradient: AppGradients.primaryDiagonal,
                 ),
                 child: Stack(
                   children: [
@@ -620,6 +613,18 @@ class _ContentDetailScreen extends StatefulWidget {
 
 class _ContentDetailScreenState extends State<_ContentDetailScreen> {
   bool _marking = false;
+  bool _submitting = false;
+  bool _submitted = false;
+  final _linkController = TextEditingController();
+  bool _linkError = false;
+
+  bool get _isAssignment => widget.content.type == 'Assignment';
+
+  @override
+  void dispose() {
+    _linkController.dispose();
+    super.dispose();
+  }
 
   IconData get _typeIcon {
     switch (widget.content.type) {
@@ -633,6 +638,63 @@ class _ContentDetailScreenState extends State<_ContentDetailScreen> {
         return Icons.attach_file_rounded;
       default:
         return Icons.menu_book_rounded;
+    }
+  }
+
+  bool _isValidUrl(String url) {
+    final uri = Uri.tryParse(url);
+    return uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+  }
+
+  Future<void> _submitAssignment() async {
+    final link = _linkController.text.trim();
+    if (!_isValidUrl(link)) {
+      setState(() => _linkError = true);
+      return;
+    }
+    setState(() { _submitting = true; _linkError = false; });
+    try {
+      await CoursesApi.submitAssignmentLink(
+        contentId: widget.content.id,
+        link: link,
+        token: widget.token,
+      );
+      widget.content.isCompleted = true;
+      widget.onCompleted();
+      setState(() { _submitted = true; _submitting = false; });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(children: [
+              Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+              SizedBox(width: 8),
+              Text('Assignment submitted!',
+                  style: TextStyle(color: Colors.white)),
+            ]),
+            backgroundColor: const Color(0xFF06D6A0),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      setState(() => _submitting = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to submit: ${e.toString()}',
+                style: const TextStyle(color: Colors.white)),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      }
     }
   }
 
@@ -666,7 +728,6 @@ class _ContentDetailScreenState extends State<_ContentDetailScreen> {
         Navigator.pop(context);
       }
     } catch (_) {
-      // Mark complete locally even if API fails
       widget.content.isCompleted = true;
       widget.onCompleted();
       if (mounted) Navigator.pop(context);
@@ -807,18 +868,108 @@ class _ContentDetailScreenState extends State<_ContentDetailScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Mark complete button
-            if (!widget.content.isCompleted)
+            // ── Assignment submission form ─────────────────────────────────
+            if (_isAssignment && !widget.content.isCompleted && !_submitted) ...[
+              const Row(
+                children: [
+                  Icon(Icons.link_rounded, size: 16, color: AppColors.primary),
+                  SizedBox(width: 6),
+                  Text('Submit Your Work',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Paste a link to your work (Google Drive, GitHub, etc.)',
+                style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _linkController,
+                keyboardType: TextInputType.url,
+                onChanged: (_) {
+                  if (_linkError) setState(() => _linkError = false);
+                },
+                decoration: InputDecoration(
+                  hintText: 'https://drive.google.com/...',
+                  hintStyle: const TextStyle(
+                      color: AppColors.textLight, fontSize: 13),
+                  prefixIcon: const Icon(Icons.link_rounded,
+                      color: AppColors.primary, size: 18),
+                  filled: true,
+                  fillColor: Colors.white,
+                  errorText: _linkError ? 'Please enter a valid URL' : null,
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 14),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: AppColors.border)),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: AppColors.border)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                          color: AppColors.primary, width: 1.5)),
+                  errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: AppColors.error)),
+                ),
+              ),
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        widget.accent,
-                        widget.accent.withValues(alpha: 0.8)
-                      ],
+                    gradient: AppGradients.primary,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: TextButton(
+                    onPressed: _submitting ? null : _submitAssignment,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
                     ),
+                    child: _submitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2))
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.upload_rounded,
+                                  color: Colors.white, size: 18),
+                              SizedBox(width: 8),
+                              Text('Submit Assignment',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700)),
+                            ],
+                          ),
+                  ),
+                ),
+              ),
+            ]
+
+            // ── Mark complete (non-assignment) ────────────────────────────
+            else if (!_isAssignment && !widget.content.isCompleted)
+              SizedBox(
+                width: double.infinity,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: AppGradients.primary,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: TextButton(
@@ -840,20 +991,19 @@ class _ContentDetailScreenState extends State<_ContentDetailScreen> {
                               Icon(Icons.check_rounded,
                                   color: Colors.white, size: 18),
                               SizedBox(width: 8),
-                              Text(
-                                'Mark as Complete',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
+                              Text('Mark as Complete',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700)),
                             ],
                           ),
                   ),
                 ),
               )
-            else
+
+            // ── Completed state ────────────────────────────────────────────
+            else if (widget.content.isCompleted || _submitted)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -863,15 +1013,15 @@ class _ContentDetailScreenState extends State<_ContentDetailScreen> {
                   border: Border.all(
                       color: const Color(0xFF06D6A0).withValues(alpha: 0.3)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.check_circle_rounded,
+                    const Icon(Icons.check_circle_rounded,
                         color: Color(0xFF06D6A0), size: 18),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
-                      'Completed',
-                      style: TextStyle(
+                      _isAssignment ? 'Assignment Submitted' : 'Completed',
+                      style: const TextStyle(
                         color: Color(0xFF06D6A0),
                         fontSize: 15,
                         fontWeight: FontWeight.w700,

@@ -43,6 +43,23 @@ class CoursesApi {
     return body as Map<String, dynamic>;
   }
 
+  /// Submit an assignment link for a module content item
+  static Future<void> submitAssignmentLink({
+    required String contentId,
+    required String link,
+    required String token,
+  }) async {
+    await ApiClient.post(
+      CoursesEndpoints.submitAssignment(contentId),
+      body: {
+        'content': link,
+        'filePath': link,
+        'status': 'Submitted',
+      },
+      token: token,
+    );
+  }
+
   /// Mark a content item as complete
   static Future<void> markContentComplete({
     required String contentId,
@@ -54,13 +71,15 @@ class CoursesApi {
     );
   }
 
-    /// Fetch all enrollments for a given student
+  /// Fetch all enrollments for a given student
   static Future<List<Enrollment>> fetchEnrollments({
     required String token,
     required String contactId,
   }) async {
-    final url = '${CoursesEndpoints.enrollments}?contact_id=$contactId';
-    final body = await ApiClient.get(url, token: token);
+    final body = await ApiClient.get(
+      CoursesEndpoints.myEnrollments,
+      token: token,
+    );
 
     // API returns { value: [...], Count: N }
     if (body is Map && body['value'] is List) {
