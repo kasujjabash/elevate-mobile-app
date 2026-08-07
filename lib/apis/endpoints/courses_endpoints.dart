@@ -16,12 +16,13 @@ class CoursesEndpoints {
   /// GET — student enrollments
   static String get myEnrollments => '${BaseUrl.api}/students/me/courses';
 
-  /// GET — all student enrollments
-  static String get enrollments => '${BaseUrl.api}/courses/enrollment';
-
   /// GET — course progress
   static String progress(String courseId) =>
       '${BaseUrl.api}/courses/$courseId/progress';
+
+  /// POST — submit assignment link for a module content item
+  static String submitAssignment(String contentId) =>
+      '${BaseUrl.api}/assignments/content/$contentId/submissions';
 
   /// POST — mark content as complete
   static String completeContent(String contentId) =>

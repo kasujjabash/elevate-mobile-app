@@ -51,13 +51,19 @@ class _AuthGateState extends State<AuthGate> {
 
   Future<void> _restoreSession() async {
     final auth = context.read<AuthProvider>();
+    final courses = context.read<CourseProvider>();
+
+    // Clear any stale course data before restoring session
+    courses.clear();
+
     await auth.tryAutoLogin();
     if (!mounted) return;
+
     if (auth.status == AuthStatus.authenticated && auth.user!.isStudent) {
-      await context.read<CourseProvider>().fetchEnrollments(
-            token: auth.token!,
-            contactId: auth.user!.contactId,
-          );
+      await courses.fetchEnrollments(
+        token: auth.token!,
+        contactId: auth.user!.contactId,
+      );
     }
   }
 
